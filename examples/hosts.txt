@@ -1,0 +1,6 @@
+example.com
+www.example.com
+[example.org](http://example.org)
+https://example.net/path
+*.iana.org
+nonexistent-subdomain-hopefully-12345.example.com
