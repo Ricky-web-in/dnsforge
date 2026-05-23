@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"dnsforge/internal/config"
-	"dnsforge/internal/resolve"
-	"dnsforge/internal/wildcard"
+	"github.com/Ricky-web-in/dnsforge/internal/config"
+	"github.com/Ricky-web-in/dnsforge/internal/resolve"
+	"github.com/Ricky-web-in/dnsforge/internal/wildcard"
 )
 
 func Run(cfg *config.Config, hosts []string) ([]resolve.Result, error) {

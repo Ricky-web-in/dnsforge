@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"dnsforge/internal/resolve"
+	"github.com/Ricky-web-in/dnsforge/internal/resolve"
 )
 
 func RandomLabel(root string) (string, error) {

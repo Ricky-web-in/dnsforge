@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"dnsforge/internal/resolve"
+	"github.com/Ricky-web-in/dnsforge/internal/resolve"
 )
 
 func TestRandomLabel(t *testing.T) {

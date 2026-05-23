@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/Ricky-web-in/dnsforge/internal/normalize"
 )
 
 type Record struct {
@@ -15,17 +17,22 @@ type Record struct {
 }
 
 type Result struct {
-	Hostname string   `json:"hostname"`
-	Records  []Record `json:"records"`
-	Resolved bool     `json:"resolved"`
-	Wildcard bool     `json:"wildcard,omitempty"`
-	Error    string   `json:"error,omitempty"`
+	Input          string   `json:"input"`
+	Hostname       string   `json:"hostname"`
+	Records        []Record `json:"records"`
+	Resolved       bool     `json:"resolved"`
+	Wildcard       bool     `json:"wildcard"`
+	Resolver       string   `json:"resolver"`
+	ResponseTimeMS int64    `json:"response_time_ms"`
+	Timestamp      string   `json:"timestamp"`
+	Error          string   `json:"error"`
 }
 
 type Resolver struct {
-	client  DNSClient
-	timeout time.Duration
-	retries int
+	client        DNSClient
+	timeout       time.Duration
+	retries       int
+	resolverLabel string
 }
 
 type DNSClient interface {
@@ -80,22 +87,32 @@ func NewResolver(customResolver string, timeout time.Duration, retries int) *Res
 	}
 
 	return &Resolver{
-		client:  &netClient{resolver: r},
-		timeout: timeout,
-		retries: retries,
+		client:        &netClient{resolver: r},
+		timeout:       timeout,
+		retries:       retries,
+		resolverLabel: resolverName(customResolver),
 	}
 }
 
 func NewResolverWithClient(client DNSClient, timeout time.Duration, retries int) *Resolver {
 	return &Resolver{
-		client:  client,
-		timeout: timeout,
-		retries: retries,
+		client:        client,
+		timeout:       timeout,
+		retries:       retries,
+		resolverLabel: "system",
 	}
 }
 
 func (r *Resolver) Resolve(hostname string, recordTypes []string) Result {
-	res := Result{Hostname: hostname}
+	cleanHost := normalize.Hostname(hostname)
+	start := time.Now()
+	res := Result{
+		Input:     cleanHost,
+		Hostname:  cleanHost,
+		Resolver:  r.resolverLabel,
+		Timestamp: time.Now().UTC().Format(time.RFC3339),
+		Error:     "",
+	}
 	resolvedAny := false
 	var errs []string
 
@@ -122,10 +139,18 @@ func (r *Resolver) Resolve(hostname string, recordTypes []string) Result {
 	if !resolvedAny && len(errs) > 0 {
 		res.Error = "resolution failed: " + strings.Join(errs, "; ")
 	}
+	res.ResponseTimeMS = time.Since(start).Milliseconds()
 
 	res.Records = DedupeRecords(res.Records)
 
 	return res
+}
+
+func resolverName(customResolver string) string {
+	if strings.TrimSpace(customResolver) == "" {
+		return "system"
+	}
+	return customResolver
 }
 
 func DedupeRecords(records []Record) []Record {

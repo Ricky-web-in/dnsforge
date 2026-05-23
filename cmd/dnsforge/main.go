@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"dnsforge/internal/config"
-	"dnsforge/internal/input"
-	"dnsforge/internal/output"
-	"dnsforge/internal/runner"
+	"github.com/Ricky-web-in/dnsforge/internal/config"
+	"github.com/Ricky-web-in/dnsforge/internal/input"
+	"github.com/Ricky-web-in/dnsforge/internal/output"
+	"github.com/Ricky-web-in/dnsforge/internal/runner"
 )
 
 func main() {
@@ -44,7 +44,7 @@ func main() {
 	}
 	defer w.Close()
 
-	if err := output.WriteResults(results, cfg.Format, w); err != nil {
+	if err := output.WriteResults(results, cfg.Format, cfg.IncludeUnresolved, cfg.Records, w); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 		os.Exit(1)
 	}

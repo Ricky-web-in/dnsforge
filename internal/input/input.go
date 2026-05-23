@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"dnsforge/internal/config"
-	"dnsforge/internal/normalize"
+	"github.com/Ricky-web-in/dnsforge/internal/config"
+	"github.com/Ricky-web-in/dnsforge/internal/normalize"
 )
 
 func Collect(cfg *config.Config, stdin io.Reader) ([]string, error) {
